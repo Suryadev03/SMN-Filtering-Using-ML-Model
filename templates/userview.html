@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Violation - User Details</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        integrity="sha384-x-rE+H6YO39zH7zeJZxpmQKxCYgoG6mFfYRV4t6O6DhZ9SLHZqevz2sFekkg1xBt"
+        crossorigin="anonymous">
+    <style>
+        .container {
+            margin-top: 50px;
+        }
+
+        h1 {
+            color: #007;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        video {
+            width: 100%;
+            height: auto;
+        }
+
+        .username-column {
+            font-weight: bold;
+            color: #28a745;
+            /* Green color for username */
+        }
+
+        body {
+            background-image: url('../static/img/bg.jpg');
+            background-size: 100%;
+            background-repeat: no-repeat;
+        }
+
+        /* Add styles for the solid form */
+        .solid-form {
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            max-width: 1000px;
+            /* Adjust the max-width as needed */
+            background-color: #fff;
+            /* Set a solid background color */
+            margin: 20px auto;
+        }
+
+        /* Add styles for star rating */
+        .star-rating {
+            cursor: pointer;
+        }
+
+        .stars {
+            display: flex;
+            justify-content: center;
+        }
+
+        .star {
+            color: #ccc;
+            font-size: 24px;
+            margin: 0 2px;
+        }
+
+        .star.checked {
+            color: gold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="#">Violation</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item active">
+                    <a class="nav-link" href="{{ url_for('index') }}">Home</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="{{ url_for('userupload') }}">Upload</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="{{ url_for('userview') }}">View</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="solid-form">
+            <h1>User Details</h1>
+            <table border="4" class="table">
+                <thead>
+                    <tr>
+                        <th>Tweet</th>
+                        <th>Video</th>
+                        <th>User</th>
+                        <th>Ratings</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for upload in uploads %}
+                    <tr>
+                        <td>{{ upload.tweet }}</td>
+                        <td>
+                            <video autoplay loop muted width="100" height="140" controls>
+                                <source
+                                    src="{{ url_for('static', filename=upload.video_path.split('static/')[1]) }}"
+                                    type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </td>
+                        <td>{{ upload.user.username }}</td>
+                        <td class="star-rating" data-upload-id="{{ upload.id }}">
+                            <div class="stars">
+                                {% for i in range(1, 6) %}
+                                <span class="star" data-rating="{{ i }}">&#9733;</span>
+                                {% endfor %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js"
+        integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvPZl1nsm3"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                document.querySelectorAll('.star-rating').forEach(function (rating) {
+                    const starsContainer = rating.querySelector('.stars');
+                    const uploadId = rating.dataset.uploadId;
+        
+                    // Function to set the initial state of stars based on stored rating
+                    const setInitialStarsState = function () {
+                        const storedRating = localStorage.getItem(`rating_${uploadId}`);
+                        if (storedRating !== null) {
+                            starsContainer.querySelectorAll('.star').forEach(function (star) {
+                                const ratingValue = parseInt(star.dataset.rating);
+                                star.classList.toggle('checked', ratingValue <= storedRating);
+                            });
+                        }
+                    };
+        
+                  
+                    setInitialStarsState();
+        
+                    starsContainer.addEventListener('click', function (event) {
+                        if (event.target.classList.contains('star')) {
+                            const selectedRating = event.target.dataset.rating;
+        
+                           
+                            starsContainer.querySelectorAll('.star').forEach(function (star) {
+                                star.classList.remove('checked');
+                            });
+        
+                       
+                            starsContainer.querySelectorAll('.star').forEach(function (star) {
+                                const ratingValue = parseInt(star.dataset.rating);
+                                star.classList.toggle('checked', ratingValue <= selectedRating);
+                            });
+        
+                            localStorage.setItem(`rating_${uploadId}`, selectedRating);
+        
+                            fetch(`/rate_video/${uploadId}`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    rating: parseInt(selectedRating) + 1 
+                                })
+                            })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.success) {
+                                       
+                                        console.log('Rating submitted successfully!');
+                                    } else {
+                                        console.error('Failed to submit rating.');
+                                    }
+                                });
+                        }
+                    });
+                });
+            });
+        </script>
+        
+
+</body>
+
+</html>
